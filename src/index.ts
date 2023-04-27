@@ -46,7 +46,9 @@ interface CheckoutRequest extends Request {
 }
 
 app.post('/checkout', async (req: Request, res: Response) => {
-    const { cart, customer, paymentMethod } = req.body;
+    const { cart, customer, payment } = req.body;
+
+    
 });
 
 app.listen(port, () => {
