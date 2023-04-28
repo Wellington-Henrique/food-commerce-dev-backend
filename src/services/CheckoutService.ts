@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { Customer, PrismaClient } from "@prisma/client";
 
 import { CustomerData } from "../interfaces/CustomerData";
 import { PaymentData } from "../interfaces/PaymentData";
@@ -34,9 +34,22 @@ export default class CheckoutService {
                 Number(snack.price)
         }))
 
-        console.log(snacksInCart)
+        
         //  TODO: registrar os dados do cliente no banco
+        const customerCreated = await this.createCustomer(customer);
+        console.log(customerCreated)
+
         //  TODO: criar uma orgem
         //  TODO: processar o pagamento
     }
+
+    private async createCustomer(customer: CustomerData): Promise<Customer> {
+        const customerCreated = await this.prisma.customer.upsert({
+            where: { email: customer.email },
+            update: customer,
+            create: customer
+        })
+
+        return customerCreated;
+    } 
 }
