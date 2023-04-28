@@ -5,5 +5,6 @@ export interface SnackData {
     description: string
     image: string
     price: number
-    quantity: number
+    quantity: number,
+    subTotal: number
 }
