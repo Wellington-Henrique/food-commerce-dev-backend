@@ -16,7 +16,11 @@ export default class CheckoutService {
         cart: SnackData[],
         customer: CustomerData,
         payment: PaymentData
-    ) {
+    ): Promise<{
+        id: number,
+        transactionId: string,
+        status: string
+    }> {
         //  TODO: pegar dados de snacks do bando de dados
         const snacks = await this.prisma.snack.findMany({
             where: {
@@ -40,14 +44,28 @@ export default class CheckoutService {
         const customerCreated = await this.createCustomer(customer);
         
         //  TODO: criar uma ordem
-        const orderCreated = await this.createOrder(snacksInCart, customerCreated);
+        let orderCreated = await this.createOrder(snacksInCart, customerCreated);
 
         // TODO: processar o pagamento
-        const transaction = await new PaymentService().process(
+        const { transactionId, status } = await new PaymentService().process(
             orderCreated,
             customerCreated,
             payment
         )
+
+        orderCreated = await this.prisma.order.update({
+            where: { id: orderCreated.id },
+            data: {
+                transactionId,
+                status
+            }
+        });
+
+        return {
+            id: orderCreated.id,
+            transactionId: orderCreated.transactionId!,
+            status: orderCreated.status
+        }
     }
 
     private async createCustomer(customer: CustomerData): Promise<Customer> {
